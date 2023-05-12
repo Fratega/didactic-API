@@ -1,38 +1,62 @@
-const { v4: uuid } = require("uuid");
-const Workout = require("../database/Workout");
+// In src/database/Workout.js
+const DB = require("./db.json");
+const { saveToDatabase } = require("./utils");
 
 const getAllWorkouts = () => {
-    const allWorkouts = Workout.getAllWorkouts();
-    return allWorkouts;
+  return DB.workouts;
 };
 
-const getOneWorkout = () => {
-  return;
+const getOneWorkout = (workoutId) => {
+  const workout = DB.workouts.find((workout) => workout.id === workoutId);
+  if (!workout) {
+    return;
+  }
+  return workout;
 };
 
 const createNewWorkout = (newWorkout) => {
-  const workoutToInsert = {
-    ...newWorkout,
-    id: uuid(),
-    createdAt: new Date().toLocaleString("en-US", { timeZone: "UTC" }),
+  const isAlreadyAdded =
+    DB.workouts.findIndex((workout) => workout.name === newWorkout.name) > -1;
+  if (isAlreadyAdded) {
+    return;
+  }
+  DB.workouts.push(newWorkout);
+  saveToDatabase(DB);
+  return newWorkout;
+};
+
+const updateOneWorkout = (workoutId, changes) => {
+  const indexForUpdate = DB.workouts.findIndex(
+    (workout) => workout.id === workoutId
+  );
+  if (indexForUpdate === -1) {
+    return;
+  }
+  const updatedWorkout = {
+    ...DB.workouts[indexForUpdate],
+    ...changes,
     updatedAt: new Date().toLocaleString("en-US", { timeZone: "UTC" }),
   };
-  const createdWorkout = Workout.createNewWorkout(workoutToInsert);
-  return createdWorkout;
+  DB.workouts[indexForUpdate] = updatedWorkout;
+  saveToDatabase(DB);
+  return updatedWorkout;
 };
 
-const updateOneWorkout = () => {
-  return;
-};
-
-const deleteOneWorkout = () => {
-  return;
+const deleteOneWorkout = (workoutId) => {
+  const indexForDeletion = DB.workouts.findIndex(
+    (workout) => workout.id === workoutId
+  );
+  if (indexForDeletion === -1) {
+    return;
+  }
+  DB.workouts.splice(indexForDeletion, 1);
+  saveToDatabase(DB);
 };
 
 module.exports = {
   getAllWorkouts,
-  getOneWorkout,
   createNewWorkout,
+  getOneWorkout,
   updateOneWorkout,
   deleteOneWorkout,
 };

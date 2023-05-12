@@ -1,60 +1,70 @@
 const workoutService = require("../services/workoutService");
 
-// GET
 const getAllWorkouts = (req, res) => {
   const allWorkouts = workoutService.getAllWorkouts();
   res.send({ status: "OK", data: allWorkouts });
-  };
-  
-// PUT
-  const getOneWorkout = (req, res) => {
-    const workout = workoutService.getOneWorkout();
-    res.send("Get an existing workout");
-  };
-  
-  // POST
-  const createNewWorkout = (req, res) => {
-    const { body } = req;
+};
 
-    if (
-      !body.name ||
-      !body.mode ||
-      !body.equipment ||
-      !body.exercises ||
-      !body.trainerTips
-    ) {
-      return;
-    }
+const getOneWorkout = (req, res) => {
+  const {
+    params: { workoutId },
+  } = req;
+  if (!workoutId) {
+    return;
+  }
+  const workout = workoutService.getOneWorkout(workoutId);
+  res.send({ status: "OK", data: workout });
+};
 
-    const newWorkout = {
-      name: body.name,
-      mode: body.mode,
-      equipment: body.equipment,
-      exercises: body.exercises,
-      trainerTips: body.trainerTips,
-    };
-    
-    const createdWorkout = workoutService.createNewWorkout(newWorkout);
-    
-    res.status(201).send({ status: "OK", data: createdWorkout });
+const createNewWorkout = (req, res) => {
+  const { body } = req;
+  if (
+    !body.name ||
+    !body.mode ||
+    !body.equipment ||
+    !body.exercises ||
+    !body.trainerTips
+  ) {
+    return;
+  }
+  const newWorkout = {
+    name: body.name,
+    mode: body.mode,
+    equipment: body.equipment,
+    exercises: body.exercises,
+    trainerTips: body.trainerTips,
   };
+  const createdWorkout = workoutService.createNewWorkout(newWorkout);
+  res.status(201).send({ status: "OK", data: createdWorkout });
+};
 
-  // PATCH
-  const updateOneWorkout = (req, res) => {
-    const updatedWorkout = workoutService.updateOneWorkout();
-    res.send("Update an existing workout");
-  };
-  
-  // DELETE
-  const deleteOneWorkout = (req, res) => {
-    workoutService.deleteOneWorkout();
-    res.send("Delete an existing workout");
-  };
-  
-  module.exports = {
-    getAllWorkouts,
-    getOneWorkout,
-    createNewWorkout,
-    updateOneWorkout,
-    deleteOneWorkout,
-  };
+const updateOneWorkout = (req, res) => {
+  const {
+    body,
+    params: { workoutId },
+  } = req;
+  if (!workoutId) {
+    return;
+  }
+  const updatedWorkout = workoutService.updateOneWorkout(workoutId, body);
+  res.send({ status: "OK", data: updatedWorkout });
+};
+
+const deleteOneWorkout = (req, res) => {
+  const {
+    params: { workoutId },
+  } = req;
+  if (!workoutId) {
+    return;
+  }
+  workoutService.deleteOneWorkout(workoutId);
+  res.status(204).send({ status: "OK" });
+};
+
+module.exports = {
+  getAllWorkouts,
+  getOneWorkout,
+  createNewWorkout,
+  updateOneWorkout,
+  deleteOneWorkout,
+};
