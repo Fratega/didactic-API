@@ -1,62 +1,60 @@
-// In src/database/Workout.js
-const DB = require("./db.json");
-const { saveToDatabase } = require("./utils");
+const { v4: uuid } = require("uuid");
+const Workout = require("../database/Workout");
 
-const getAllWorkouts = () => {
-  return DB.workouts;
+const getAllWorkouts = (filterParams) => {
+  try {
+    const allWorkouts = Workout.getAllWorkouts(filterParams);
+    return allWorkouts;
+  } catch (error) {
+    throw error;
+  }
 };
 
 const getOneWorkout = (workoutId) => {
-  const workout = DB.workouts.find((workout) => workout.id === workoutId);
-  if (!workout) {
-    return;
+  try {
+    const workout = Workout.getOneWorkout(workoutId);
+    return workout;
+  } catch (error) {
+    throw error;
   }
-  return workout;
 };
 
 const createNewWorkout = (newWorkout) => {
-  const isAlreadyAdded =
-    DB.workouts.findIndex((workout) => workout.name === newWorkout.name) > -1;
-  if (isAlreadyAdded) {
-    return;
+  const workoutToInsert = {
+    ...newWorkout,
+    id: uuid(),
+    createdAt: new Date().toLocaleString("en-US", { timeZone: "UTC" }),
+    updatedAt: new Date().toLocaleString("en-US", { timeZone: "UTC" }),
+  };
+  try {
+    const createdWorkout = Workout.createNewWorkout(workoutToInsert);
+    return createdWorkout;
+  } catch (error) {
+    throw error;
   }
-  DB.workouts.push(newWorkout);
-  saveToDatabase(DB);
-  return newWorkout;
 };
 
 const updateOneWorkout = (workoutId, changes) => {
-  const indexForUpdate = DB.workouts.findIndex(
-    (workout) => workout.id === workoutId
-  );
-  if (indexForUpdate === -1) {
-    return;
+  try {
+    const updatedWorkout = Workout.updateOneWorkout(workoutId, changes);
+    return updatedWorkout;
+  } catch (error) {
+    throw error;
   }
-  const updatedWorkout = {
-    ...DB.workouts[indexForUpdate],
-    ...changes,
-    updatedAt: new Date().toLocaleString("en-US", { timeZone: "UTC" }),
-  };
-  DB.workouts[indexForUpdate] = updatedWorkout;
-  saveToDatabase(DB);
-  return updatedWorkout;
 };
 
 const deleteOneWorkout = (workoutId) => {
-  const indexForDeletion = DB.workouts.findIndex(
-    (workout) => workout.id === workoutId
-  );
-  if (indexForDeletion === -1) {
-    return;
+  try {
+    Workout.deleteOneWorkout(workoutId);
+  } catch (error) {
+    throw error;
   }
-  DB.workouts.splice(indexForDeletion, 1);
-  saveToDatabase(DB);
 };
 
 module.exports = {
   getAllWorkouts,
-  createNewWorkout,
   getOneWorkout,
+  createNewWorkout,
   updateOneWorkout,
   deleteOneWorkout,
 };
